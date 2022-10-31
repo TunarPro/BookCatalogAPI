@@ -17,6 +17,8 @@ namespace BookCatalogLibrary.Models
         }
 
         public virtual DbSet<Book> Books { get; set; } = null!;
+        public virtual DbSet<Role> Roles { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -36,6 +38,29 @@ namespace BookCatalogLibrary.Models
                 entity.Property(e => e.Author).HasMaxLength(35);
 
                 entity.Property(e => e.Title).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Role");
+
+                entity.Property(e => e.RoleName).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(e => e.GivenName).HasMaxLength(35);
+
+                entity.Property(e => e.PasswordHash).HasMaxLength(150);
+
+                entity.Property(e => e.Username)
+                    .HasMaxLength(35)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.Users)
+                    .HasForeignKey(d => d.RoleId)
+                    .HasConstraintName("FK__Users__RoleId__2B3F6F97");
             });
 
             OnModelCreatingPartial(modelBuilder);
